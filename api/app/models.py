@@ -8,10 +8,12 @@ from pydantic import BaseModel, Field
 class WebsiteSettings(BaseModel):
     websiteName: str = "SKULL TRADER"
     logoUrl: Optional[str] = None
-    mainTelegramUrl: str = "https://t.me/placeholder_skulltrader"
-    proofTelegramUrl: str = "https://t.me/placeholder_skulltrader"
+    mainTelegramUrl: str = "https://t.me/+3m3_kaixDm1lOGFl"
+    proofTelegramUrl: str = "https://t.me/+P-_CbZBXe6UyOGFl"
     thirdCardName: str = "SYSTEM STATUS"
     thirdCardValue: str = "--"
+    # Per-session starting capital used for public P/L % (admin-configurable)
+    startingBalancePerSession: float = 30.0
 
 
 # ---------------------------------------------------------------------------
