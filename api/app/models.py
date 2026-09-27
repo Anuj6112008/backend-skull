@@ -14,6 +14,9 @@ class WebsiteSettings(BaseModel):
     thirdCardValue: str = "--"
     # Per-session starting capital used for public P/L % (admin-configurable)
     startingBalancePerSession: float = 30.0
+    # Public hero headline (font/colors fixed in CSS; text from admin/sheet)
+    challengeHeroMain: str = "30 DAYS TRADING"
+    challengeHeroAccent: str = "CHALLENGE"
 
 
 # ---------------------------------------------------------------------------
