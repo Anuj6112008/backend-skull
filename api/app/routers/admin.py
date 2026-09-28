@@ -90,6 +90,11 @@ def update_challenge(challenge_id: str, payload: ChallengeEntryCreate):
     if data.get("totalPnl") is None:
         data["totalPnl"] = data["session1Result"] + data["session2Result"] + data["session3Result"]
 
+    # Only touch displayDate when the caller actually sent it — otherwise a
+    # partial update (or an older client) would wipe the existing label.
+    if "displayDate" not in payload.model_fields_set:
+        data.pop("displayDate", None)
+
     doc_ref.update(data)
     data["id"] = challenge_id
     return ChallengeEntry(**data)

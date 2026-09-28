@@ -46,6 +46,9 @@ class ChallengeEntry(BaseModel):
 
 class ChallengeEntryCreate(BaseModel):
     date: str
+    # Display label for the site (e.g. "Sep 19"). Was missing here before, so
+    # the sheet sync / admin panel silently lost it on every POST/PUT.
+    displayDate: Optional[str] = None
     session1Result: float = 0
     session1ProofUrl: Optional[str] = None
     session2Result: float = 0

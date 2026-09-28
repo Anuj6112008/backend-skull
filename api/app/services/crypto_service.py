@@ -9,6 +9,7 @@ touch any router code. Currently:
 """
 
 import os
+import time
 import requests
 from typing import List
 from ..models import CryptoPrice
@@ -65,13 +66,35 @@ def _fetch_from_coingecko() -> List[CryptoPrice]:
     return results
 
 
+# ---------------------------------------------------------------------------
+# In-memory TTL cache (per serverless instance).
+# CoinGecko's free API is rate-limited and adds up to ~4s of latency per call —
+# caching for 30s means a warm instance answers instantly and stops hammering
+# the upstream API. Failures are remembered briefly too, so an outage doesn't
+# turn into a request storm against CoinGecko.
+# ---------------------------------------------------------------------------
+_PRICE_CACHE_TTL = 30.0    # seconds a successful fetch stays fresh
+_ERROR_CACHE_TTL = 15.0    # seconds to remember an upstream failure (serve mock)
+_cache: dict = {"data": None, "expires": 0.0}
+
+
 def get_crypto_prices() -> List[CryptoPrice]:
+    now = time.monotonic()
+    if _cache["data"] is not None and now < _cache["expires"]:
+        return _cache["data"]
+
     # If you have a paid provider key, branch on it here instead.
     if os.environ.get("CRYPTO_PROVIDER_API_KEY"):
         # Placeholder: wire up your paid provider call here and return early.
         pass
 
     try:
-        return _fetch_from_coingecko()
+        data = _fetch_from_coingecko()
+        _cache["data"] = data
+        _cache["expires"] = now + _PRICE_CACHE_TTL
     except Exception:
-        return _MOCK_PRICES
+        # Serve the mock but remember the failure briefly (don't hammer CoinGecko).
+        data = _MOCK_PRICES
+        _cache["data"] = data
+        _cache["expires"] = now + _ERROR_CACHE_TTL
+    return data
